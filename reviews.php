@@ -12,14 +12,14 @@ $user_id = $_SESSION['user']['id'];
 $message = "";
 
 // Obrada forme za komentar putem koda
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'], $_POST['vehicle_id'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     $code = trim($_POST['code']);
-    $vehicle_id = (int) $_POST['vehicle_id'];
     $rating = (int) ($_POST['rating'] ?? 0);
     $content = trim($_POST['content'] ?? '');
 
-    $stmt = $pdo->prepare("SELECT * FROM reservations WHERE user_id = ? AND vehicle_id = ? AND code = ? AND is_cancelled = 0 AND end_datetime <= NOW()");
-    $stmt->execute([$user_id, $vehicle_id, $code]);
+    // Proveri rezervaciju koja pripada korisniku i ispunjava uslov vremena
+    $stmt = $pdo->prepare("SELECT * FROM reservations WHERE user_id = ? AND code = ? AND is_cancelled = 0 AND end_datetime <= DATE_SUB(NOW(), INTERVAL 4 HOUR)");
+    $stmt->execute([$user_id, $code]);
     $reservation = $stmt->fetch();
 
     if ($reservation) {
@@ -29,13 +29,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'], $_POST['vehic
 
         if ($check->fetchColumn() == 0 && $rating >= 1 && $rating <= 5 && $content !== '') {
             $insert = $pdo->prepare("INSERT INTO comments (user_id, vehicle_id, reservation_id, content, rating, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
-            $insert->execute([$user_id, $vehicle_id, $reservation['id'], $content, $rating]);
+            $insert->execute([$user_id, $reservation['vehicle_id'], $reservation['id'], $content, $rating]);
             $message = "<div class='alert alert-success'>Komentar uspešno dodat.</div>";
         } else {
             $message = "<div class='alert alert-warning'>Već ste ostavili komentar ili su podaci neispravni.</div>";
         }
     } else {
-        $message = "<div class='alert alert-danger'>Nevalidan kod ili vreme komentarisanja nije dozvoljeno.</div>";
+        $message = "<div class='alert alert-danger'>Nevalidan kod ili vreme komentarisanja nije dozvoljeno (mora proći 4h od vraćanja vozila).</div>";
     }
 }
 
@@ -70,10 +70,6 @@ $comments = $stmt->fetchAll();
         <div class="col-md-4">
             <label class="form-label">Rezervacioni kod</label>
             <input type="text" name="code" class="form-control" required>
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">ID vozila</label>
-            <input type="number" name="vehicle_id" class="form-control" required>
         </div>
         <div class="col-md-2">
             <label class="form-label">Ocena</label>

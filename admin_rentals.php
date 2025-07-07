@@ -8,75 +8,45 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     exit;
 }
 
-// Filtriranje po datumu i korisniku
-$date_filter = $_GET['date'] ?? '';
-$user_filter = $_GET['user'] ?? '';
-$sort = in_array($_GET['sort'] ?? '', ['start_date', 'first_name', 'name']) ? $_GET['sort'] : 'start_date';
+$search = $_GET['search'] ?? '';
+$sort = $_GET['sort'] ?? 'r.id';
+$allowedSort = ['r.id', 'start_datetime', 'end_datetime', 'u.first_name', 'v.name'];
+$sort = in_array($sort, $allowedSort) ? $sort : 'r.id';
 
-$query = "SELECT rentals.*, users.first_name, users.last_name, vehicles.name, vehicles.model 
-          FROM rentals 
-          JOIN users ON rentals.user_id = users.id 
-          JOIN vehicles ON rentals.vehicle_id = vehicles.id";
-$where = [];
-$params = [];
+$sql = "SELECT r.*, u.first_name, u.last_name, v.name AS vehicle_name, v.model FROM reservations r 
+        JOIN users u ON r.user_id = u.id 
+        JOIN vehicles v ON r.vehicle_id = v.id 
+        WHERE u.first_name LIKE :search OR u.last_name LIKE :search OR v.name LIKE :search OR v.model LIKE :search 
+        ORDER BY $sort DESC";
 
-if ($date_filter) {
-    $where[] = "DATE(rentals.start_date) = ?";
-    $params[] = $date_filter;
-}
-if ($user_filter) {
-    $where[] = "users.id = ?";
-    $params[] = $user_filter;
-}
-
-if (!empty($where)) {
-    $query .= " WHERE " . implode(" AND ", $where);
-}
-
-$query .= " ORDER BY $sort DESC";
-$stmt = $pdo->prepare($query);
-$stmt->execute($params);
-$rentals = $stmt->fetchAll();
-
-// Lista korisnika za dropdown
-$usersList = $pdo->query("SELECT id, first_name, last_name FROM users WHERE role = 'user' ORDER BY first_name")->fetchAll();
+$stmt = $pdo->prepare($sql);
+$stmt->execute(['search' => "%$search%"]);
+$reservations = $stmt->fetchAll();
 ?>
 
 <section class="container py-5">
-    <h2>Pregled svih iznajmljivanja</h2>
-
-    <form class="row mb-4" method="get">
-        <div class="col-md-3">
-            <label class="form-label">Filter po datumu</label>
-            <input type="date" name="date" value="<?php echo htmlspecialchars($date_filter); ?>" class="form-control">
+    <h2>Pregled svih rezervacija</h2>
+    <form method="get" class="row g-3 mb-4">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Pretraga korisnika ili vozila" value="<?php echo htmlspecialchars($search); ?>">
         </div>
         <div class="col-md-3">
-            <label class="form-label">Filter po korisniku</label>
-            <select name="user" class="form-select">
-                <option value="">-- svi korisnici --</option>
-                <?php foreach ($usersList as $u): ?>
-                    <option value="<?php echo $u['id']; ?>" <?php if ($user_filter == $u['id']) echo 'selected'; ?>>
-                        <?php echo htmlspecialchars($u['first_name'] . ' ' . $u['last_name']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Sortiraj po</label>
             <select name="sort" class="form-select">
-                <option value="start_date" <?php if ($sort === 'start_date') echo 'selected'; ?>>Datum početka</option>
-                <option value="first_name" <?php if ($sort === 'first_name') echo 'selected'; ?>>Ime korisnika</option>
-                <option value="name" <?php if ($sort === 'name') echo 'selected'; ?>>Naziv vozila</option>
+                <option value="r.id">Sortiraj po...</option>
+                <option value="start_datetime" <?php if ($sort === 'start_datetime') echo 'selected'; ?>>Početak</option>
+                <option value="end_datetime" <?php if ($sort === 'end_datetime') echo 'selected'; ?>>Kraj</option>
+                <option value="u.first_name" <?php if ($sort === 'u.first_name') echo 'selected'; ?>>Korisnik</option>
+                <option value="v.name" <?php if ($sort === 'v.name') echo 'selected'; ?>>Vozilo</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
-            <button type="submit" class="btn btn-primary w-100">Primeni</button>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-primary">Primeni</button>
         </div>
     </form>
 
-    <?php if (count($rentals) > 0): ?>
+    <?php if (count($reservations) > 0): ?>
         <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table class="table table-bordered">
                 <thead class="table-light">
                 <tr>
                     <th>ID</th>
@@ -84,29 +54,27 @@ $usersList = $pdo->query("SELECT id, first_name, last_name FROM users WHERE role
                     <th>Vozilo</th>
                     <th>Početak</th>
                     <th>Kraj</th>
-                    <th>Povratak</th>
+                    <th>Kod</th>
+                    <th>Status</th>
                 </tr>
                 </thead>
                 <tbody>
-                <?php foreach ($rentals as $r): ?>
+                <?php foreach ($reservations as $r): ?>
                     <tr>
                         <td><?php echo $r['id']; ?></td>
                         <td><?php echo htmlspecialchars($r['first_name'] . ' ' . $r['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($r['name'] . ' ' . $r['model']); ?></td>
-                        <td><?php echo date('d.m.Y H:i', strtotime($r['start_date'])); ?></td>
-                        <td><?php echo date('d.m.Y H:i', strtotime($r['end_date'])); ?></td>
-                        <td>
-                            <?php echo $r['return_time']
-                                ? date('d.m.Y H:i', strtotime($r['return_time']))
-                                : '<span class="text-muted">Još nije vraćeno</span>'; ?>
-                        </td>
+                        <td><?php echo htmlspecialchars($r['vehicle_name'] . ' ' . $r['model']); ?></td>
+                        <td><?php echo $r['start_datetime']; ?></td>
+                        <td><?php echo $r['end_datetime']; ?></td>
+                        <td><?php echo $r['code']; ?></td>
+                        <td><?php echo $r['is_cancelled'] ? '<span class="text-danger">Otkazana</span>' : 'Aktivna'; ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
     <?php else: ?>
-        <p class="text-muted">Nema iznajmljivanja za prikaz.</p>
+        <p class="text-muted">Nema rezervacija koje odgovaraju kriterijumima pretrage.</p>
     <?php endif; ?>
 </section>
 

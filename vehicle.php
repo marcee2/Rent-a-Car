@@ -10,10 +10,8 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $vehicle_id = (int) $_GET['id'];
 
-// Povećaj popularnost
 $pdo->prepare("UPDATE vehicles SET popularity = popularity + 1 WHERE id = ?")->execute([$vehicle_id]);
 
-// Dohvati podatke o vozilu
 $stmt = $pdo->prepare("SELECT * FROM vehicles WHERE id = ?");
 $stmt->execute([$vehicle_id]);
 $vehicle = $stmt->fetch();
@@ -35,6 +33,12 @@ if ($user_id) {
 ?>
 
 <section class="container py-5">
+    <?php if (!empty($_SESSION['reservation_success'])): ?>
+        <div class="alert alert-success"> <?php echo $_SESSION['reservation_success']; unset($_SESSION['reservation_success']); ?> </div>
+    <?php elseif (!empty($_SESSION['reservation_error'])): ?>
+        <div class="alert alert-danger"> <?php echo $_SESSION['reservation_error']; unset($_SESSION['reservation_error']); ?> </div>
+    <?php endif; ?>
+
     <div class="row">
         <div class="col-md-6">
             <img src="<?php echo htmlspecialchars($vehicle['image']); ?>" alt="<?php echo htmlspecialchars($vehicle['model']); ?>" class="img-fluid rounded shadow-sm">
@@ -71,7 +75,6 @@ if ($user_id) {
             <?php else: ?>
                 <div class="alert alert-info mt-4">Morate biti ulogovani kao korisnik da biste mogli da rezervišete vozilo.</div>
             <?php endif; ?>
-
         </div>
     </div>
 
