@@ -1,8 +1,8 @@
 <?php
 $host = 'localhost';
-$db   = 'car';
-$user = 'root';
-$pass = '';
+$db   = 'builders';
+$user = 'builders';
+$pass = 'V64P1JKXrN2Veen';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
