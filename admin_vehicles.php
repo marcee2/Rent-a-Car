@@ -10,18 +10,15 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
 
 $message = "";
 
-// Upload folder
 $uploadDir = 'images/';
 if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-// Brisanje
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
     $id = (int)$_GET['delete'];
     $pdo->prepare("DELETE FROM vehicles WHERE id = ?")->execute([$id]);
     $message = "<p class='text-success'>Vozilo je obrisano.</p>";
 }
 
-// Dodavanje / izmena
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = $_POST['vehicle_id'] ?? null;
     $name = trim($_POST['name']);
@@ -29,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $year = (int)$_POST['year'];
     $fuel = $_POST['fuel_type'];
     $seats = (int)$_POST['seats'];
-    $gearbox = $_POST['gearbox'];
+    $gearbox = $_POST['transmission'];
     $popularity = (int)$_POST['popularity'];
+    $price_per_day = (float)$_POST['price_per_day'];
 
     $image_path = $_POST['existing_image'] ?? '';
     if (isset($_FILES['image_file']) && $_FILES['image_file']['error'] === UPLOAD_ERR_OK) {
@@ -39,24 +37,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp'])) {
             $newName = uniqid('car_', true) . '.' . $ext;
-
             $relativePath = $uploadDir . $newName;
             $absolutePath = __DIR__ . '/' . $relativePath;
-
             if (move_uploaded_file($tmpName, $absolutePath)) {
                 $image_path = $relativePath;
             }
         }
     }
 
-    if ($name && $model && $year && $fuel && $seats && $gearbox && $image_path) {
+    if ($name && $model && $year && $fuel && $seats && $gearbox && $image_path && $price_per_day) {
         if ($id) {
-            $stmt = $pdo->prepare("UPDATE vehicles SET name=?, model=?, year=?, fuel_type=?, seats=?, gearbox=?, popularity=?, image=? WHERE id=?");
-            $stmt->execute([$name, $model, $year, $fuel, $seats, $gearbox, $popularity, $image_path, $id]);
+            $stmt = $pdo->prepare("UPDATE vehicles SET name=?, model=?, year=?, fuel_type=?, seats=?, gearbox=?, popularity=?, image=?, price_per_day=? WHERE id=?");
+            $stmt->execute([$name, $model, $year, $fuel, $seats, $gearbox, $popularity, $image_path, $price_per_day, $id]);
             $message = "<p class='text-success'>Vozilo je izmenjeno.</p>";
         } else {
-            $stmt = $pdo->prepare("INSERT INTO vehicles (name, model, year, fuel_type, seats, gearbox, popularity, image) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$name, $model, $year, $fuel, $seats, $gearbox, $popularity, $image_path]);
+            $stmt = $pdo->prepare("INSERT INTO vehicles (name, model, year, fuel_type, seats, gearbox, popularity, image, price_per_day) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$name, $model, $year, $fuel, $seats, $gearbox, $popularity, $image_path, $price_per_day]);
             $message = "<p class='text-success'>Dodato novo vozilo.</p>";
         }
     } else {
@@ -64,14 +60,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-
 $edit_vehicle = null;
 if (isset($_GET['edit']) && is_numeric($_GET['edit'])) {
     $stmt = $pdo->prepare("SELECT * FROM vehicles WHERE id = ?");
     $stmt->execute([$_GET['edit']]);
     $edit_vehicle = $stmt->fetch();
 }
-
 
 $search = $_GET['search'] ?? '';
 $sort = $_GET['sort'] ?? 'id';
@@ -141,13 +135,17 @@ $vehicles = $stmt->fetchAll();
                     <select name="transmission" class="form-select" required>
                         <option value="">--</option>
                         <?php foreach (['manual','automatic'] as $gb): ?>
-                            <option value="<?php echo $gb; ?>" <?php if (($edit_vehicle['transmission'] ?? '') === $gb) echo 'selected'; ?>><?php echo ucfirst($gb); ?></option>
+                            <option value="<?php echo $gb; ?>" <?php if (($edit_vehicle['gearbox'] ?? '') === $gb) echo 'selected'; ?>><?php echo ucfirst($gb); ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="col-md-2">
                     <label class="form-label">Popularnost</label>
                     <input type="number" name="popularity" value="<?php echo $edit_vehicle['popularity'] ?? 0; ?>" class="form-control" required>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Cena (€/dan)</label>
+                    <input type="number" step="0.01" name="price_per_day" value="<?php echo $edit_vehicle['price_per_day'] ?? ''; ?>" class="form-control" required>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label">Slika vozila</label>

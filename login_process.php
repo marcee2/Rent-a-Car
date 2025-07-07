@@ -19,15 +19,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         }
 
         if (password_verify($password, $user['password'])) {
-            // Session set
+            // Session set — sve korisničke informacije
             $_SESSION['user'] = [
                 'id' => $user['id'],
                 'email' => $user['email'],
-                'first_name' => $user['first_name']
+                'first_name' => $user['first_name'],
+                'last_name' => $user['last_name'],
+                'id_number' => $user['id_number'],
+                'driver_license' => $user['driver_license'],
+                'phone' => $user['phone']
             ];
             $_SESSION['role'] = $user['role'] ?? 'user';
 
-            // Role redirection
+            // Redirekcija po ulozi
             if ($user['role'] === 'admin') {
                 header("Location: index.php");
                 exit;

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 06, 2025 at 09:58 PM
+-- Generation Time: Jul 07, 2025 at 12:32 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,10 +68,21 @@ CREATE TABLE `favorites` (
 --
 
 CREATE TABLE `password_resets` (
+  `id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `token` varchar(255) NOT NULL,
-  `expires_at` datetime NOT NULL
+  `expires_at` datetime NOT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `password_resets`
+--
+
+INSERT INTO `password_resets` (`id`, `email`, `token`, `expires_at`, `created_at`) VALUES
+(1, 'raxica3931@binafex.com', 'c6b8c1543bebe7f24189e09c8a8473c56ac14ef87a79159d33bd722707b8e242', '2025-07-07 12:29:25', '2025-07-07 11:29:25'),
+(2, 'raxica3931@binafex.com', '88fc06ca88e76e84b0793b24427fc9f3b33447dc6f762c5cf1cae599608884ec', '2025-07-07 12:40:48', '2025-07-07 11:40:48'),
+(3, 'raxica3931@binafex.com', '1003f298de921130eb44e416801d9804a3655300988cd3f7fe56da27aeb82afe', '2025-07-07 12:43:53', '2025-07-07 11:43:53');
 
 -- --------------------------------------------------------
 
@@ -176,7 +187,7 @@ INSERT INTO `users` (`id`, `email`, `password`, `first_name`, `last_name`, `phon
 (1, 'roseli2326@cristout.com', '$2y$10$qk1VO/wPYKyNm3OvdS5qUujE/i6Uo52BnRDudaGqFtxhPKL/ug5uS', 'Nikola', 'Marcetic', NULL, '123123', '123123', NULL, 'SU', 'user', 1, NULL, NULL, NULL, NULL, '', NULL),
 (3, 'admin@gmail.com', '$2y$10$8NP402W4r6Crp2U3/eCYuev8lN7C5uidf7cIDW5Hhb2i6Xgjt5IcW', 'Admin', 'User', NULL, NULL, '', NULL, NULL, 'admin', 1, NULL, NULL, NULL, NULL, '', NULL),
 (4, 'keri@gmail.com', '$2y$10$0k2Jp3GIHjxaRzCQNGFyp.eZsEinKp36pJ/jvQWcLmuEZuHFiEnkG', 'David', 'Keri', NULL, NULL, '', NULL, NULL, 'worker', 1, NULL, NULL, NULL, NULL, '', NULL),
-(5, 'raxica3931@binafex.com', '$2y$10$jyiUsm0S7P9TGSkwBAUK5.Ra.nEG6YdAqo/fcN451xli.FhadIzcy', 'test', 'aaaaaaaaaa12', '123123123123123213', '123123123123', '123123123123', NULL, 'SU', 'user', 1, 'b8f5f18f67b278007c45b24b99636b3b', NULL, NULL, NULL, '', '2025-07-06 21:45:28'),
+(5, 'raxica3931@binafex.com', '$2y$10$jyiUsm0S7P9TGSkwBAUK5.Ra.nEG6YdAqo/fcN451xli.FhadIzcy', 'test', 'korisnik', '123123123123', '123123123123', '123123123', NULL, 'SU', 'user', 1, 'b8f5f18f67b278007c45b24b99636b3b', NULL, NULL, NULL, '', '2025-07-06 21:45:28'),
 (6, 'raxica331@binafex.com', '$2y$10$eNyvHv8aF6hfsjm6NMMS9ur7eIVWXdk.xZTihQztPIXHqac171ima', 'test', 'subject', NULL, '123123123', '123123123', NULL, 'SU', 'user', 0, NULL, NULL, NULL, NULL, '393192379605b62acc49aae724c864c7', NULL);
 
 -- --------------------------------------------------------
@@ -212,10 +223,11 @@ INSERT INTO `vehicles` (`id`, `name`, `model`, `year`, `fuel_type`, `seats`, `im
 (4, 'Hyundai', 'Land Cruiser', 2010, 'Diesel', 5, 'images/car7.jpg', 0, 25.00, NULL, 252, 'Automatic', 1),
 (5, 'Jeep', 'Compass', 2019, 'Petrol', 5, 'images/car8.jpg', 0, 40.00, NULL, 221, 'Automatic', 1),
 (6, 'Jeep', 'Wrangler', 2018, 'Diesel', 5, 'images/car9.jpg', 0, 45.00, NULL, 451, 'Manual', 1),
-(7, 'Citroen', 'C4', 2023, 'Diesel', 5, 'images/car10.jpg', 0, 40.00, NULL, 486, 'Automatic', 1),
+(7, 'Citroen', 'C4', 2023, 'Diesel', 5, 'images/car10.jpg', 0, 40.00, NULL, 487, 'Automatic', 1),
 (8, 'Ford', 'Focus', 2017, 'Petrol', 5, 'images/crni.jpg', 0, 25.00, NULL, 300, 'Automatic', 1),
 (9, 'Audi', 'A3', 2019, 'Petrol', 5, 'images/plavi.jpg', 0, 50.00, NULL, 401, 'Automatic', 1),
-(10, 'Mercedes', 'A Class', 2015, 'Diesel', 5, 'images/svetli.jpg', 0, 25.00, NULL, 245, 'Automatic', 1);
+(10, 'Mercedes', 'A Class', 2015, 'Diesel', 5, 'images/svetli.jpg', 0, 25.00, NULL, 246, 'Automatic', 1),
+(12, 'Deciji auto', 'Kid\'sCar', 2024, 'electric', 2, 'images/car_686b9e8f378fd4.19338169.png', 0, 0.00, NULL, 0, 'automatic', 1);
 
 -- --------------------------------------------------------
 
@@ -248,7 +260,8 @@ CREATE TABLE `worker_log` (
 
 INSERT INTO `worker_log` (`id`, `reservation_id`, `worker_id`, `type`, `timestamp`) VALUES
 (1, 7, 4, 'pickup', '2025-07-06 21:48:53'),
-(2, 7, 4, 'return', '2025-07-06 21:49:18');
+(2, 7, 4, 'return', '2025-07-06 21:49:18'),
+(4, 7, 4, '', '2025-07-07 12:04:13');
 
 --
 -- Indexes for dumped tables
@@ -270,6 +283,12 @@ ALTER TABLE `favorites`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `vehicle_id` (`vehicle_id`);
+
+--
+-- Indexes for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `rentals`
@@ -339,6 +358,12 @@ ALTER TABLE `favorites`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `password_resets`
+--
+ALTER TABLE `password_resets`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
 -- AUTO_INCREMENT for table `rentals`
 --
 ALTER TABLE `rentals`
@@ -366,7 +391,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `vehicle_categories`
@@ -378,7 +403,7 @@ ALTER TABLE `vehicle_categories`
 -- AUTO_INCREMENT for table `worker_log`
 --
 ALTER TABLE `worker_log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

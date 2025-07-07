@@ -14,7 +14,6 @@ include 'includes/header.php';
     </div>
 </header>
 
-<!-- Information section -->
 <section class="py-5">
     <div class="container px-4">
         <div class="row gx-4">
@@ -33,8 +32,17 @@ include 'includes/header.php';
         </div>
     </div>
 </section>
+<?php if (!isset($_SESSION['user'])): ?>
+    <section class="container my-5">
+        <div class="alert alert-info text-center shadow-sm">
+            <h4 class="mb-3">🔒 Pristupite celoj ponudi vozila</h4>
+            <p class="mb-3">Ulogujte se ili napravite nalog da biste videli sva dostupna vozila i napravili rezervaciju.</p>
+            <a href="login.php" class="btn btn-outline-primary me-2">Prijavi se</a>
+            <a href="register.php" class="btn btn-primary">Registruj se</a>
+        </div>
+    </section>
+<?php endif; ?>
 
-<!-- Call to Action -->
 <section class="bg-light py-5">
     <div class="container text-center">
         <h2 class="fw-bold">Spremni za sledeće putovanje?</h2>
@@ -48,15 +56,15 @@ include 'includes/header.php';
 <script>
     "use strict";
 
-    document.addEventListener("DOMContentLoaded", function () { //code executes when page fully loads html/php
-        const heroSection = document.querySelector('.hero-section'); //looks for element with class hero.section
+    document.addEventListener("DOMContentLoaded", function () {
+        const heroSection = document.querySelector('.hero-section');
         const images = [
             'images/beli.jpg',
             'images/plavi.jpg',
             'images/crni.jpg',
             'images/svetli.jpg'
         ];
-        let currentIndex = 0;        //index of first image is 0, named beli.jpg
+        let currentIndex = 0;       
         let intervalId;
 
         const imgElement = document.createElement('img');

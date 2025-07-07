@@ -1,6 +1,6 @@
 <?php
 require_once 'includes/db_config.php';
-session_start();
+include 'includes/header.php';
 
 if (!isset($_GET['token'])) {
     echo "<div class='container py-5'><p class='text-danger'>Token nije validan.</p></div>";
@@ -9,7 +9,6 @@ if (!isset($_GET['token'])) {
 
 $token = $_GET['token'];
 
-// Sanitize token to avoid issues with URL encoding
 $token = filter_var($token, FILTER_SANITIZE_STRING);
 
 $stmt = $pdo->prepare("SELECT email FROM password_resets WHERE token = ? AND expires_at >= NOW()");
@@ -45,8 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 }
-
-include 'includes/header.php';
 ?>
 
 <div class="container py-5">

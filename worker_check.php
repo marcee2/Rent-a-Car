@@ -8,11 +8,10 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'worker') {
     exit;
 }
 
-
 $message = "";
 $reservation = null;
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['code'])) {
     $code = trim($_POST['code'] ?? '');
 
     if ($code) {
@@ -37,14 +36,15 @@ if (isset($_POST['action']) && isset($_POST['reservation_id'])) {
     $id = (int) $_POST['reservation_id'];
 
     if (in_array($action, ['approve', 'reject'])) {
-        $status = $action === 'approve' ? 'approved' : 'rejected';
-        $update = $pdo->prepare("UPDATE reservations SET status = ? WHERE id = ?");
-        $update->execute([$status, $id]);
-        $message = "<div class='alert alert-success'>Rezervacija je uspešno $status.</div>";
+        $worker_id = $_SESSION['user']['id'] ?? 0;
+
+        $log = $pdo->prepare("INSERT INTO worker_log (reservation_id, worker_id, type) VALUES (?, ?, ?)");
+        $log->execute([$id, $worker_id, $action]);
+
+        $message = "<div class='alert alert-success'>Rezervacija je uspešno " . ($action === 'approve' ? 'odobrena' : 'odbijena') . ".</div>";
         $reservation = null;
     }
 }
-
 ?>
 
 <div class="container py-5">

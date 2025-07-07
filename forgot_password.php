@@ -1,10 +1,13 @@
-<<?php
+<?php
 require_once 'includes/db_config.php';
 require_once 'PHPMailer/src/PHPMailer.php';
 require_once 'PHPMailer/src/SMTP.php';
 require_once 'PHPMailer/src/Exception.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
+
+$success = '';
+$error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = trim($_POST['email'] ?? '');
@@ -27,12 +30,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->isSMTP();
         $mail->Host = 'smtp.gmail.com';
         $mail->SMTPAuth = true;
-        $mail->Username = 'TVOJ_EMAIL@gmail.com';
-        $mail->Password = 'TVOJA_APP_LOZINKA';
+        $mail->Username = 'marcetic.nikola05@gmail.com';
+        $mail->Password = 'vbpc pita ovnt ymeu';
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
-        $mail->setFrom('noreply@rentcar.com', 'Rent a Car SU');
+        $mail->setFrom('marcetic.nikola05@gmail.com', 'Rent a Car SU');
         $mail->addAddress($email);
         $mail->isHTML(true);
         $mail->Subject = 'Resetovanje lozinke';
@@ -41,10 +44,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->send();
     }
 
-    echo "<div class='container py-5'><p class='text-success'>Ako postoji nalog sa tom e-mail adresom, link za resetovanje je poslat.</p></div>";
+    $success = "Ako postoji nalog sa tom e-mail adresom, link za resetovanje je poslat.";
 }
 ?>
-
 
 <?php include "includes/header.php"; ?>
 <div class="container py-5">
